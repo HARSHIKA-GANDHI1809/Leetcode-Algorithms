@@ -1,0 +1,44 @@
+Given a string s, return the longest palindromic substring in s.
+
+ 
+
+Example 1:
+
+Input: s = "babad"
+Output: "bab"
+Explanation: "aba" is also a valid answer.
+Example 2:
+
+Input: s = "cbbd"
+Output: "bb"
+ #wrote your code here:-
+void expandAroundCenter(const char* s, int len, int left, int right, int* startIdx, int* maxLen) {
+    while (left >= 0 && right < len && s[left] == s[right]) {
+        int currentLength = right - left + 1;
+        if (currentLength > *maxLen) {
+            *maxLen = currentLength;
+            *startIdx = left;
+        }
+        left--;
+        right++;
+    }
+}
+char* longestPalindrome(char* s) {
+    if (s == NULL || *s == '\0') {
+        char* empty = (char*)malloc(1 * sizeof(char));
+        empty[0] = '\0';
+        return empty;
+    }
+
+    int len = strlen(s);
+    int startIdx = 0;
+    int maxLen = 1;
+    for (int i = 0; i < len; i++) {
+        expandAroundCenter(s, len, i, i, &startIdx, &maxLen);
+        expandAroundCenter(s, len, i, i + 1, &startIdx, &maxLen);
+    }
+    char* result = (char*)malloc((maxLen + 1) * sizeof(char));
+    strncpy(result, s + startIdx, maxLen);
+    result[maxLen] = '\0'; 
+    return result;
+}
