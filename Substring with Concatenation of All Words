@@ -1,0 +1,127 @@
+You are given a string s and an array of strings words. All the strings of words are of the same length.
+
+A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
+
+For example, if words = ["ab","cd","ef"], then "abcdef", "abefcd", "cdabef", "cdefab", "efabcd", and "efcdab" are all concatenated strings. "acdbef" is not a concatenated string because it is not the concatenation of any permutation of words.
+Return an array of the starting indices of all the concatenated substrings in s. You can return the answer in any order.
+
+ 
+
+Example 1:
+
+Input: s = "barfoothefoobarman", words = ["foo","bar"]
+
+Output: [0,9]
+
+Explanation:
+
+The substring starting at 0 is "barfoo". It is the concatenation of ["bar","foo"] which is a permutation of words.
+The substring starting at 9 is "foobar". It is the concatenation of ["foo","bar"] which is a permutation of words.
+
+Example 2:
+
+Input: s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]
+
+Output: []
+
+Explanation:
+
+There is no concatenated substring.
+
+Example 3:
+
+Input: s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]
+
+Output: [6,9,12]
+
+Explanation:
+
+The substring starting at 6 is "foobarthe". It is the concatenation of ["foo","bar","the"].
+The substring starting at 9 is "barthefoo". It is the concatenation of ["bar","the","foo"].
+The substring starting at 12 is "thefoobar". It is the concatenation of ["the","foo","bar"].
+#write code here:-
+ typedef struct {
+    char word[31];
+    int count;
+} WordMap;
+
+int getWordCount(WordMap* map, int mapSize, const char* word) {
+    for (int i = 0; i < mapSize; i++) {
+        if (strcmp(map[i].word, word) == 0) return map[i].count;
+    }
+    return 0;
+}
+int* findSubstring(char* s, char** words, int wordsSize, int* returnSize) {
+    *returnSize = 0;
+    if (!s || wordsSize == 0) return NULL;
+
+    int s_len = strlen(s);
+    int word_len = strlen(words[0]);
+    int total_len = wordsSize * word_len;
+
+    if (s_len < total_len) return NULL;
+    int* result = (int*)malloc(s_len * sizeof(int));
+    WordMap* targetMap = (WordMap*)calloc(wordsSize, sizeof(WordMap));
+    int targetMapSize = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        int found = 0;
+        for (int j = 0; j < targetMapSize; j++) {
+            if (strcmp(targetMap[j].word, words[i]) == 0) {
+                targetMap[j].count++;
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            strcpy(targetMap[targetMapSize].word, words[i]);
+            targetMap[targetMapSize].count = 1;
+            targetMapSize++;
+        }
+    }
+    for (int i = 0; i < word_len; i++) {
+        int left = i, right = i;
+        int count = 0;
+        
+        WordMap* currentMap = (WordMap*)calloc(targetMapSize, sizeof(WordMap));
+        for(int m = 0; m < targetMapSize; m++) strcpy(currentMap[m].word, targetMap[m].word);
+
+        while (right + word_len <= s_len) {
+            char sub[31] = {0};
+            strncpy(sub, s + right, word_len);
+            right += word_len;
+
+            int targetFreq = getWordCount(targetMap, targetMapSize, sub);
+            if (targetFreq > 0) {
+                int currIdx = -1;
+                for (int m = 0; m < targetMapSize; m++) {
+                    if (strcmp(currentMap[m].word, sub) == 0) { currIdx = m; break; }
+                }
+                currentMap[currIdx].count++;
+                count++;
+                while (currentMap[currIdx].count > targetMap[currIdx].count) {
+                    char leftSub[31] = {0};
+                    strncpy(leftSub, s + left, word_len);
+                    for (int m = 0; m < targetMapSize; m++) {
+                        if (strcmp(currentMap[m].word, leftSub) == 0) {
+                            currentMap[m].count--;
+                            break;
+                        }
+                    }
+                    count--;
+                    left += word_len;
+                }
+                if (count == wordsSize) {
+                    result[(*returnSize)++] = left;
+                }
+            } else {
+                for (int m = 0; m < targetMapSize; m++) currentMap[m].count = 0;
+                count = 0;
+                left = right;
+            }
+        }
+        free(currentMap);
+    }
+
+    free(targetMap);
+    return result;
+}
