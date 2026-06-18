@@ -1,0 +1,44 @@
+Given a string containing just the characters '(' and ')', return the length of the longest valid (well-formed) parentheses substring.
+
+ 
+
+Example 1:
+
+Input: s = "(()"
+Output: 2
+Explanation: The longest valid parentheses substring is "()".
+Example 2:
+
+Input: s = ")()())"
+Output: 4
+Explanation: The longest valid parentheses substring is "()()".
+Example 3:
+
+Input: s = ""
+Output: 0
+#write your code here:-
+int longestValidParentheses(char* s) {
+   int n = strlen(s);
+    if (n == 0) return 0; 
+    int* stack = (int*)malloc((n + 1) * sizeof(int));
+    int top = -1;
+    int max_length = 0;
+    stack[++top] = -1;
+
+    for (int i = 0; i < n; i++) {
+        if (s[i] == '(') {
+            stack[++top] = i;
+        } else {
+            top--;
+
+            if (top == -1) {
+                stack[++top] = i;
+            } else {
+                max_length = MAX(max_length, i - stack[top]);
+            }
+        }
+    }
+    free(stack);
+
+    return max_length;
+}
