@@ -1,0 +1,74 @@
+Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sum to target.
+
+Each number in candidates may only be used once in the combination.
+
+Note: The solution set must not contain duplicate combinations.
+
+ 
+
+Example 1:
+
+Input: candidates = [10,1,2,7,6,1,5], target = 8
+Output: 
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+]
+Example 2:
+
+Input: candidates = [2,5,2,1,2], target = 5
+Output: 
+[
+[1,2,2],
+[5]
+]
+ 
+
+#write code here:-
+ int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+void backtrack(int* candidates, int candidatesSize, int target, int start, 
+               int* currentCombination, int currentSize, 
+               int*** results, int* returnSize, int** returnColumnSizes, int* capacity) {
+                if (target == 0) {
+        
+        if (*returnSize >= *capacity) {
+            *capacity *= 2;
+            *results = (int**)realloc(*results, (*capacity) * sizeof(int*));
+            *returnColumnSizes = (int*)realloc(*returnColumnSizes, (*capacity) * sizeof(int));
+        }
+        (*results)[*returnSize] = (int*)malloc(currentSize * sizeof(int));
+        memcpy((*results)[*returnSize], currentCombination, currentSize * sizeof(int));
+        (*returnColumnSizes)[*returnSize] = currentSize;
+        (*returnSize)++;
+        return;
+    }
+    for (int i = start; i < candidatesSize; i++) {
+        if (candidates[i] > target) {
+            break;
+        }
+        if (i > start && candidates[i] == candidates[i - 1]) {
+            continue;
+        }
+        currentCombination[currentSize] = candidates[i];
+        backtrack(candidates, candidatesSize, target - candidates[i], i + 1, 
+                  currentCombination, currentSize + 1, 
+                  results, returnSize, returnColumnSizes, capacity);
+                  }
+}
+int** combinationSum2(int* candidates, int candidatesSize, int target, int* returnSize, int** returnColumnSizes) {
+    qsort(candidates, candidatesSize, sizeof(int), compare);
+    
+    int capacity = 150; 
+    int** results = (int**)malloc(capacity * sizeof(int*));
+    *returnColumnSizes = (int*)malloc(capacity * sizeof(int));
+    *returnSize = 0;
+    int* currentCombination = (int*)malloc(candidatesSize * sizeof(int));
+    backtrack(candidates, candidatesSize, target, 0, currentCombination, 0, &results, returnSize, returnColumnSizes, &capacity);
+    
+    free(currentCombination);
+    return results;
+}
