@@ -1,0 +1,48 @@
+The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.
+
+Given an integer n, return the number of distinct solutions to the n-queens puzzle.
+
+ 
+
+Example 1:
+
+
+Input: n = 4
+Output: 2
+Explanation: There are two distinct solutions to the 4-queens puzzle as shown.
+Example 2:
+
+Input: n = 1
+Output: 1
+#write code here:-
+void backtrack(int row, int n, bool* cols, bool* diag1, bool* diag2, int* totalCount) {
+    if (row == n) {
+        (*totalCount)++;
+        return;
+    }
+    for (int col = 0; col < n; col++) {
+        if (cols[col] || diag1[row - col + n - 1] || diag2[row + col]) {
+            continue;
+        }
+        cols[col] = true;
+        diag1[row - col + n - 1] = true;
+        diag2[row + col] = true;
+        backtrack(row + 1, n, cols, diag1, diag2, totalCount);
+        cols[col] = false;
+        diag1[row - col + n - 1] = false;
+        diag2[row + col] = false;
+    }
+}
+int totalNQueens(int n) {
+    int totalCount = 0;
+    bool* cols = (bool*)calloc(n, sizeof(bool));
+    bool* diag1 = (bool*)calloc(2 * n - 1, sizeof(bool));
+    bool* diag2 = (bool*)calloc(2 * n - 1, sizeof(bool));
+
+    backtrack(0, n, cols, diag1, diag2, &totalCount);
+    free(cols);
+    free(diag1);
+    free(diag2);
+
+    return totalCount;
+}
