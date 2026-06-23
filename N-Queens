@@ -1,0 +1,67 @@
+The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.
+
+Given an integer n, return all distinct solutions to the n-queens puzzle. You may return the answer in any order.
+
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a queen and an empty space, respectively.
+
+ 
+
+Example 1:
+
+
+Input: n = 4
+Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+Explanation: There exist two distinct solutions to the 4-queens puzzle as shown above
+Example 2:
+
+Input: n = 1
+Output: [["Q"]]
+#write code here:-
+ void backtrack(int row, int n, int* queens, bool* cols, bool* diag1, bool* diag2, 
+               char*** solutions, int* returnSize) {
+    if (row == n) {
+        solutions[*returnSize] = (char**)malloc(n * sizeof(char*));
+        for (int i = 0; i < n; i++) {
+           solutions[*returnSize][i] = (char*)malloc((n + 1) * sizeof(char));
+            memset(solutions[*returnSize][i], '.', n);
+            solutions[*returnSize][i][queens[i]] = 'Q';
+            solutions[*returnSize][i][n] = '\0';
+        }
+        (*returnSize)++;
+        return;
+    }
+
+    for (int col = 0; col < n; col++) {
+        if (cols[col] || diag1[row - col + n - 1] || diag2[row + col]) {
+            continue;
+        }
+        queens[row] = col;
+        cols[col] = true;
+        diag1[row - col + n - 1] = true;
+        diag2[row + col] = true;
+        backtrack(row + 1, n, queens, cols, diag1, diag2, solutions, returnSize);
+        cols[col] = false;
+        diag1[row - col + n - 1] = false;
+        diag2[row + col] = false;
+    }
+}
+char*** solveNQueens(int n, int* returnSize, int** returnColumnSizes) {
+    *returnSize = 0;
+    char*** solutions = (char***)malloc(400 * sizeof(char**));
+    int* queens = (int*)malloc(n * sizeof(int));
+    bool* cols = (bool*)calloc(n, sizeof(bool));
+    bool* diag1 = (bool*)calloc(2 * n - 1, sizeof(bool));
+    bool* diag2 = (bool*)calloc(2 * n - 1, sizeof(bool));
+
+    backtrack(0, n, queens, cols, diag1, diag2, solutions, returnSize);
+    *returnColumnSizes = (int*)malloc((*returnSize) * sizeof(int));
+    for (int i = 0; i < *returnSize; i++) {
+        (*returnColumnSizes)[i] = n;
+    }
+    free(queens);
+    free(cols);
+    free(diag1);
+    free(diag2);
+
+    return solutions;
+}
